@@ -36,7 +36,7 @@ Anime Hub Dictionary is your ultimate tool for exploring the vast universe of an
 3. **Learn More**: Click the "Read More" button to navigate to the AniList page for full details.
 
 ## Live Demo
-Check out the live version of the project here: **[Anime Hub Dictionary](#)** *(Add your GitHub Pages or live deployment link here)*
+Check out the live version of the project here: **[Anime Hub Dictionary](https://theanomality.github.io/AnimeWiki/)** *(Add your GitHub Pages or live deployment link here)*
 
 ## Installation
 1. Clone this repository:
