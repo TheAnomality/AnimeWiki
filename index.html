@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Hub Dictionary</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <h1>🌸 Anime Hub Dictionary 🌸</h1>
+        <p> Discover the anime world, one search at a time!</p>
+        <div class="search-container">
+            <input type="text" id="search-bar" placeholder="Search for an anime...">
+            <button id="search-button"> 🔍 Find Anime </button>
+        </div>
+    </header>
+
+    <!-- Loader Section -->
+    <div id="loader" class="loader hidden">
+        <img src="https://i.gifer.com/YCZH.gif" alt="Loading">
+        <p>Loading...</p>
+    </div>
+
+    <!-- Results Grid -->
+    <div id="results-grid" class="results-grid"></div>
+
+    <!-- Footer -->
+    <footer>
+        Made with ❤️ and a dash of otaku magic.<br> <br>
+        ✨ Powered by AniList API ✨
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
