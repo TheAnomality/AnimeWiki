@@ -41,11 +41,11 @@ Check out the live version of the project here: **[Anime Hub Dictionary](https:/
 ## Installation
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/anime-hub-dictionary.git
+   git clone https://github.com/TheAnomality/AnimeWiki.git
    ```
 2. Navigate to the project directory:
    ```bash
-   cd anime-hub-dictionary
+   cd AnimeWiki
    ```
 3. Open `index.html` in your browser to explore the app locally.
 
