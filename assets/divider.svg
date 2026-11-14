@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 34" width="1200" height="34" role="presentation">
+  <defs>
+    <style>
+      .drift { animation: drift 12s linear infinite; }
+      .spin { transform-box: fill-box; transform-origin: center; animation: spin 4s linear infinite; }
+      .pulse { animation: pulse 4s ease-in-out infinite; }
+      @keyframes drift { from { transform: translate(-30px, var(--y)); } to { transform: translate(1230px, var(--y)); } }
+      @keyframes spin { from { transform: rotate(0deg) scaleX(1); } 50% { transform: rotate(180deg) scaleX(.35); } to { transform: rotate(360deg) scaleX(1); } }
+      @keyframes pulse { 0%, 100% { transform: translateX(-400px); } 50% { transform: translateX(1200px); } }
+      @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+    </style>
+    <linearGradient id="line" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#ff6584" stop-opacity="0"/><stop offset=".25" stop-color="#ff6584"/><stop offset=".75" stop-color="#ffde59"/><stop offset="1" stop-color="#ffde59" stop-opacity="0"/></linearGradient>
+    <linearGradient id="spark" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <clipPath id="c"><rect width="1200" height="34"/></clipPath>
+  </defs>
+  <g clip-path="url(#c)">
+    <rect x="0" y="16" width="1200" height="2" rx="1" fill="url(#line)"/>
+    <rect class="pulse" x="0" y="15" width="400" height="4" rx="2" fill="url(#spark)" opacity=".8"/>
+    <g class="drift" style="--y:18px;animation-duration:10.7s;animation-delay:-3.9s"><path class="spin" d="M0 0C4.2 1.2 6.2 7.2 2 10L0 8.6L-2 10C-6.2 7.2-4.2 1.2 0 0Z" fill="#ffde59" transform="scale(1.18)" style="animation-duration:4.0s"/></g><g class="drift" style="--y:24px;animation-duration:13.2s;animation-delay:-6.2s"><path class="spin" d="M0 0C4.2 1.2 6.2 7.2 2 10L0 8.6L-2 10C-6.2 7.2-4.2 1.2 0 0Z" fill="#ffde59" transform="scale(1.04)" style="animation-duration:5.0s"/></g><g class="drift" style="--y:23px;animation-duration:12.3s;animation-delay:-5.9s"><path class="spin" d="M0 0C4.2 1.2 6.2 7.2 2 10L0 8.6L-2 10C-6.2 7.2-4.2 1.2 0 0Z" fill="#ff9ab5" transform="scale(1.04)" style="animation-duration:2.9s"/></g><g class="drift" style="--y:15px;animation-duration:15.5s;animation-delay:-0.2s"><path class="spin" d="M0 0C4.2 1.2 6.2 7.2 2 10L0 8.6L-2 10C-6.2 7.2-4.2 1.2 0 0Z" fill="#ffc2d1" transform="scale(1.00)" style="animation-duration:4.9s"/></g><g class="drift" style="--y:22px;animation-duration:9.3s;animation-delay:-7.7s"><path class="spin" d="M0 0C4.2 1.2 6.2 7.2 2 10L0 8.6L-2 10C-6.2 7.2-4.2 1.2 0 0Z" fill="#ff6584" transform="scale(1.18)" style="animation-duration:4.3s"/></g><g class="drift" style="--y:21px;animation-duration:15.2s;animation-delay:-14.0s"><path class="spin" d="M0 0C4.2 1.2 6.2 7.2 2 10L0 8.6L-2 10C-6.2 7.2-4.2 1.2 0 0Z" fill="#ffe3ea" transform="scale(1.34)" style="animation-duration:3.9s"/></g><g class="drift" style="--y:10px;animation-duration:15.7s;animation-delay:-5.8s"><path class="spin" d="M0 0C4.2 1.2 6.2 7.2 2 10L0 8.6L-2 10C-6.2 7.2-4.2 1.2 0 0Z" fill="#ffc2d1" transform="scale(0.98)" style="animation-duration:3.0s"/></g>
+  </g>
+</svg>
