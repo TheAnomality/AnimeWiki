@@ -5,14 +5,15 @@
  * neon wireframe "gem" floating behind the page title. It reacts to the pointer (parallax), to
  * scrolling, and speeds up while the app is loading data.
  *
- * Three.js is loaded on demand from a CDN. If that fails, or WebGL is missing, the page simply
- * keeps its CSS background - nothing else depends on this file.
+ * Three.js ships with the site (lib/) and is loaded on demand. If it cannot load, or WebGL is
+ * missing, the page simply keeps its CSS background - nothing else depends on this file.
  */
 (function () {
   "use strict";
 
   const AW = (window.AnimeWiki = window.AnimeWiki || {});
-  const THREE_URL = "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js";
+  const THREE_LOCAL = "lib/three.module.min.js";
+  const THREE_CDN = "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js";
 
   const FIELD = { width: 20, height: 12, near: 7, far: -12 }; // volume the petals live in
   const GEM_Z = -6;
@@ -57,6 +58,16 @@
   }
 
   const rand = (min, max) => min + Math.random() * (max - min);
+
+  /**
+   * The bundled copy is used whenever the site is served over http(s). Browsers refuse to
+   * load JavaScript modules from file://, so a page opened straight from disk uses the same
+   * version from a CDN instead.
+   */
+  function loadThree() {
+    if (location.protocol === "file:") return import(THREE_CDN);
+    return import(new URL(THREE_LOCAL, document.baseURI).href).catch(() => import(THREE_CDN));
+  }
 
   /* ------------------------------------------------------------------ */
   /* Scene construction                                                  */
@@ -445,7 +456,7 @@
       document.documentElement.classList.add("no-scene");
       return Promise.resolve(false);
     }
-    state.loading = import(THREE_URL)
+    state.loading = loadThree()
       .then((module) => {
         THREE = module;
         build();

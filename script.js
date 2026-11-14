@@ -258,6 +258,83 @@
     if (state.viewName === "list") renderList();
   }
 
+  /*
+   * Backup and restore. My List lives in localStorage, so a plain JSON file is the whole
+   * "database": download it, keep it, load it into any browser.
+   */
+  function exportFavourites() {
+    if (!favourites.size) {
+      toast("Your list is empty, so there is nothing to back up yet.", "warn");
+      return;
+    }
+    const payload = { app: "anime-hub-dictionary", version: 1, exported: new Date().toISOString(), items: Array.from(favourites.values()) };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "anime-hub-my-list.json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    toast("Backup saved: " + favourites.size + (favourites.size === 1 ? " entry" : " entries"));
+  }
+
+  /** A backup file is untrusted input: every field is checked before it is kept. */
+  function cleanImportedItem(item) {
+    if (!item || typeof item !== "object") return null;
+    const match = /^(media|character):(\d{1,9})$/.exec(String(item.key || ""));
+    const id = Number(item.id);
+    if (!match || !id || Number(match[2]) !== id) return null;
+    const kind = match[1];
+    const title = String(item.title || "").replace(/\s+/g, " ").trim().slice(0, 300);
+    if (!title) return null;
+    const numberOrNull = (value, min, max) => (typeof value === "number" && value >= min && value <= max ? value : null);
+    return {
+      key: kind + ":" + id,
+      kind,
+      id,
+      type: kind === "character" ? "CHARACTER" : item.type === "MANGA" ? "MANGA" : "ANIME",
+      title,
+      image: U.safeUrl(item.image),
+      color: U.safeColor(item.color),
+      format: /^[A-Z_]{1,20}$/.test(String(item.format || "")) ? item.format : "",
+      year: numberOrNull(item.year, 1900, 2200),
+      score: numberOrNull(item.score, 0, 100),
+      added: numberOrNull(item.added, 0, 1e14) || Date.now()
+    };
+  }
+
+  async function importFavourites(file) {
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast("That file is too large to be a list backup.", "warn");
+      return;
+    }
+    let items;
+    try {
+      const parsed = JSON.parse(await file.text());
+      items = Array.isArray(parsed) ? parsed : parsed && parsed.items;
+      if (!Array.isArray(items)) throw new Error("no items");
+    } catch (err) {
+      toast("That does not look like an Anime Hub backup file.", "error");
+      return;
+    }
+    let added = 0;
+    items.slice(0, 5000).forEach((item) => {
+      const clean = cleanImportedItem(item);
+      if (clean && !favourites.has(clean.key)) {
+        favourites.set(clean.key, clean);
+        added += 1;
+      }
+    });
+    if (added && !U.store.set(FAV_KEY, Array.from(favourites.values()))) {
+      toast("Your browser blocked saving - the restored list will not survive a reload.", "warn");
+    }
+    refreshFavButtons();
+    if (state.viewName === "list") renderList();
+    toast(added ? "Restored " + added + (added === 1 ? " entry" : " entries") : "Nothing new in that backup - everything is already in your list.");
+  }
+
   /* ================================================================== */
   /* Cards                                                               */
   /* ================================================================== */
@@ -1847,6 +1924,13 @@
       }
     });
 
+    dom.listExport.addEventListener("click", exportFavourites);
+    dom.listImport.addEventListener("click", () => dom.listFile.click());
+    dom.listFile.addEventListener("change", () => {
+      importFavourites(dom.listFile.files && dom.listFile.files[0]);
+      dom.listFile.value = "";
+    });
+
     dom.fxButton.addEventListener("click", () => {
       state.fx = !state.fx;
       U.store.set(FX_KEY, state.fx);
@@ -1915,7 +1999,8 @@
       detailDialog: $("#detail-dialog"), detailBody: $("#detail-body"),
       sceneDialog: $("#scene-dialog"), sceneButton: $("#scene-search-button"), sceneFile: $("#scene-file"),
       dropzone: $("#dropzone"), sceneUrlForm: $("#scene-url-form"), sceneUrl: $("#scene-url"), sceneResults: $("#scene-results"),
-      randomButton: $("#random-button"), fxButton: $("#fx-button"), toTop: $("#to-top")
+      randomButton: $("#random-button"), fxButton: $("#fx-button"), toTop: $("#to-top"),
+      listExport: $("#list-export"), listImport: $("#list-import"), listFile: $("#list-file")
     });
 
     const storedFx = U.store.get(FX_KEY, null);

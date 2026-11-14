@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src https://api.trace.moe blob:; connect-src https://graphql.anilist.co https://api.jikan.moe https://api.trace.moe; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https:; media-src https://api.trace.moe blob:; connect-src https://graphql.anilist.co https://api.jikan.moe https://api.trace.moe; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'">
     <title>Anime Hub Dictionary</title>
     <meta name="description" content="Search anime, manga and characters, see what is trending and airing, find where to watch, and identify an anime from a screenshot. Powered by the AniList API.">
     <meta name="theme-color" content="#0a0a0f">
@@ -14,9 +14,6 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B8%3C/text%3E%3C/svg%3E">
     <link rel="preconnect" href="https://graphql.anilist.co" crossorigin>
     <link rel="preconnect" href="https://s4.anilist.co">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="utils.js" defer></script>
     <script src="api.js" defer></script>
@@ -135,7 +132,12 @@
         <section id="view-list" class="view" aria-labelledby="list-title" hidden>
             <div class="view-head">
                 <h2 id="list-title">My List</h2>
-                <p class="view-status">Saved in this browser only. No account needed.</p>
+                <p class="view-status">Saved in this browser only. No account, no server, no database.</p>
+                <div class="list-tools">
+                    <button type="button" id="list-export" class="btn" title="Download your list as a file">⬇ Back up</button>
+                    <button type="button" id="list-import" class="btn" title="Load a list from a backup file">⬆ Restore</button>
+                    <input type="file" id="list-file" accept="application/json,.json" class="visually-hidden" tabindex="-1" aria-hidden="true">
+                </div>
             </div>
             <div id="list-content"></div>
         </section>
