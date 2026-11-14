@@ -3,36 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src https://api.trace.moe blob:; connect-src https://graphql.anilist.co https://api.jikan.moe https://api.trace.moe; frame-src https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'">
     <title>Anime Hub Dictionary</title>
+    <meta name="description" content="Search anime, manga and characters, see what is trending and airing, find where to watch, and identify an anime from a screenshot. Powered by the AniList API.">
+    <meta name="theme-color" content="#0a0a0f">
+    <meta name="color-scheme" content="dark">
+    <meta property="og:title" content="Anime Hub Dictionary">
+    <meta property="og:description" content="Discover the anime world, one search at a time.">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B8%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://graphql.anilist.co" crossorigin>
+    <link rel="preconnect" href="https://s4.anilist.co">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <script src="utils.js" defer></script>
+    <script src="api.js" defer></script>
+    <script src="scene.js" defer></script>
+    <script src="script.js" defer></script>
 </head>
-<body>
-    <!-- Header Section -->
-    <header>
-        <h1>🌸 Anime Hub Dictionary 🌸</h1>
-        <p> Discover the anime world, one search at a time!</p>
-        <div class="search-container">
-            <input type="text" id="search-bar" placeholder="Search for an anime...">
-            <button id="search-button"> 🔍 Find Anime </button>
+<body data-view="home">
+    <!-- WebGL background (petals, stars, neon gem) -->
+    <canvas id="scene" class="scene-canvas" aria-hidden="true"></canvas>
+    <div id="progress" class="progress" aria-hidden="true"></div>
+
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- Top bar -->
+    <header class="topbar">
+        <a class="brand" href="#/" aria-label="Anime Hub Dictionary, home">
+            <span class="brand-mark" aria-hidden="true">🌸</span>
+            <span class="brand-name">Anime Hub</span>
+        </a>
+        <nav class="nav" aria-label="Main">
+            <a href="#/" data-nav="home">Discover</a>
+            <a href="#/browse" data-nav="browse">Browse</a>
+            <a href="#/list" data-nav="list">My List <span id="fav-count" class="count">0</span></a>
+        </nav>
+        <div class="actions">
+            <button type="button" id="scene-search-button" class="chip-button" title="Find an anime from a screenshot">
+                <span aria-hidden="true">📷</span><span class="label">Scene search</span>
+            </button>
+            <button type="button" id="random-button" class="chip-button" title="Open a random anime">
+                <span aria-hidden="true">🎲</span><span class="label">Surprise me</span>
+            </button>
+            <button type="button" id="fx-button" class="chip-button" aria-pressed="true" title="Turn 3D effects and animations on or off">
+                <span aria-hidden="true">✨</span><span class="label">3D</span>
+            </button>
         </div>
     </header>
 
-    <!-- Loader Section -->
-    <div id="loader" class="loader hidden">
-        <img src="https://i.gifer.com/YCZH.gif" alt="Loading">
-        <p>Loading...</p>
-    </div>
+    <main id="main" tabindex="-1">
+        <!-- Hero + search -->
+        <section class="hero" id="hero">
+            <h1 class="hero-title" data-scene-anchor>
+                <span aria-hidden="true">🌸</span> Anime Hub Dictionary <span aria-hidden="true">🌸</span>
+            </h1>
+            <p class="hero-tagline">Discover the anime world, one search at a time!</p>
 
-    <!-- Results Grid -->
-    <div id="results-grid" class="results-grid"></div>
+            <form id="search-form" class="search" role="search" autocomplete="off">
+                <div class="mode-switch" role="radiogroup" aria-label="What to search for">
+                    <label><input type="radio" name="mode" value="ANIME" checked><span>Anime</span></label>
+                    <label><input type="radio" name="mode" value="MANGA"><span>Manga</span></label>
+                    <label><input type="radio" name="mode" value="CHARACTER"><span>Characters</span></label>
+                </div>
 
-    <!-- Footer -->
-    <footer>
-        Made with ❤️ and a dash of otaku magic.<br> <br>
-        ✨ Powered by AniList API ✨
+                <div class="search-container">
+                    <label class="visually-hidden" for="search-bar">Search</label>
+                    <input type="search" id="search-bar" name="q" placeholder="Search for an anime..." maxlength="100"
+                           enterkeyhint="search" spellcheck="false" autocapitalize="off">
+                    <button type="submit" id="search-button">
+                        <span aria-hidden="true">🔍</span> <span id="search-button-label">Find Anime</span>
+                    </button>
+                </div>
+
+                <button type="button" id="filters-toggle" class="filters-toggle" aria-expanded="false" aria-controls="filters">
+                    <span aria-hidden="true">⚙</span> Filters <span id="filters-active" class="count" hidden>0</span>
+                </button>
+
+                <div class="filters" id="filters">
+                    <label data-filter="genre"><span>Genre</span>
+                        <select id="filter-genre"><option value="">Any</option></select>
+                    </label>
+                    <label data-filter="year"><span>Year</span>
+                        <select id="filter-year"><option value="">Any</option></select>
+                    </label>
+                    <label data-filter="season"><span>Season</span>
+                        <select id="filter-season">
+                            <option value="">Any</option>
+                            <option value="WINTER">Winter</option>
+                            <option value="SPRING">Spring</option>
+                            <option value="SUMMER">Summer</option>
+                            <option value="FALL">Fall</option>
+                        </select>
+                    </label>
+                    <label data-filter="format"><span>Format</span>
+                        <select id="filter-format"><option value="">Any</option></select>
+                    </label>
+                    <label data-filter="status"><span>Status</span>
+                        <select id="filter-status"><option value="">Any</option></select>
+                    </label>
+                    <label data-filter="sort"><span>Sort by</span>
+                        <select id="filter-sort"></select>
+                    </label>
+                    <button type="button" id="filter-reset" class="link-button">Reset filters</button>
+                </div>
+            </form>
+            <p class="hint">Tip: press <kbd>/</kbd> anywhere to jump to the search box.</p>
+        </section>
+
+        <!-- Discover -->
+        <section id="view-home" class="view" aria-label="Discover">
+            <div id="spotlight" class="spotlight"></div>
+            <div id="rails"></div>
+        </section>
+
+        <!-- Search results / browse -->
+        <section id="view-browse" class="view" aria-labelledby="results-title" hidden>
+            <div class="view-head">
+                <h2 id="results-title">Browse</h2>
+                <p id="results-status" class="view-status" role="status" aria-live="polite"></p>
+            </div>
+            <div id="results-grid" class="results-grid"></div>
+            <div class="more">
+                <button type="button" id="load-more" class="btn btn-primary" hidden>Load more</button>
+            </div>
+        </section>
+
+        <!-- Favourites -->
+        <section id="view-list" class="view" aria-labelledby="list-title" hidden>
+            <div class="view-head">
+                <h2 id="list-title">My List</h2>
+                <p class="view-status">Saved in this browser only. No account needed.</p>
+            </div>
+            <div id="list-content"></div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Made with ❤️ and a dash of otaku magic.</p>
+        <p class="footer-credits">
+            ✨ Powered by the <a href="https://anilist.co" target="_blank" rel="noopener noreferrer">AniList</a> API ✨
+            · extras from <a href="https://jikan.moe" target="_blank" rel="noopener noreferrer">Jikan</a>
+            · scene search by <a href="https://trace.moe" target="_blank" rel="noopener noreferrer">trace.moe</a>
+            · 3D by <a href="https://threejs.org" target="_blank" rel="noopener noreferrer">three.js</a>
+        </p>
+        <p class="footer-note">A fan project. Not affiliated with AniList, MyAnimeList or trace.moe.</p>
     </footer>
 
-    <script src="script.js"></script>
+    <button type="button" id="to-top" class="to-top" aria-label="Back to top" hidden>↑</button>
+    <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+
+    <!-- Anime / manga / character details -->
+    <dialog id="detail-dialog" class="modal" aria-labelledby="detail-title">
+        <div class="modal-panel">
+            <button type="button" class="modal-close" data-close aria-label="Close details">✕</button>
+            <div id="detail-body"></div>
+        </div>
+    </dialog>
+
+    <!-- Find an anime from a screenshot -->
+    <dialog id="scene-dialog" class="modal modal-narrow" aria-labelledby="scene-title">
+        <div class="modal-panel">
+            <button type="button" class="modal-close" data-close aria-label="Close scene search">✕</button>
+            <div class="scene-search">
+                <h2 id="scene-title">📷 Scene search</h2>
+                <p>Have a screenshot but no title? Drop it here to find the anime, the episode and the exact moment.</p>
+                <label class="dropzone" id="dropzone" for="scene-file">
+                    <input type="file" id="scene-file" accept="image/*" class="visually-hidden">
+                    <span class="dropzone-icon" aria-hidden="true">🖼️</span>
+                    <strong>Drop an image, paste one, or click to choose</strong>
+                    <small>Unedited screenshots work best · JPG, PNG, WebP or GIF</small>
+                </label>
+                <form id="scene-url-form" class="scene-url">
+                    <label class="visually-hidden" for="scene-url">Image link</label>
+                    <input type="url" id="scene-url" placeholder="…or paste an image link (https://…)" maxlength="1000">
+                    <button type="submit" class="btn">Search</button>
+                </form>
+                <p class="fine-print">The image is sent to trace.moe to be matched. This site stores nothing.</p>
+                <div id="scene-results" aria-live="polite"></div>
+            </div>
+        </div>
+    </dialog>
+
+    <noscript>
+        <p class="noscript">Anime Hub Dictionary needs JavaScript to talk to the AniList API. Please enable it and reload.</p>
+    </noscript>
 </body>
 </html>
